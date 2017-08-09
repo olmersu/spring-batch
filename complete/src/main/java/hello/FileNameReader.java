@@ -13,26 +13,25 @@ import java.util.stream.StreamSupport;
  * Created by olmer on 08.08.17.
  */
 public class FileNameReader extends AbstractItemCountingItemStreamItemReader<String> {
-    Stream<Path> pathStream;
+    private Iterator<Path> pathIterator;
 
     @Override
     protected String doRead() throws Exception {
-        Iterator<Path> pathIterator = pathStream.iterator();
         String pathString = null;
         if (pathIterator.hasNext())
             pathString = pathIterator.next().toString();
-        pathStream = StreamSupport.stream(((Iterable<Path>) () -> pathIterator).spliterator(), false);
         return pathString;
     }
 
     @Override
     protected void doOpen() throws Exception {
-        pathStream = Files.walk(Paths.get("/Users/olmer/Documents"));
+        pathIterator = Files.walk(Paths.get("/opt/duckbill")).iterator();
     }
 
     @Override
     protected void doClose() throws Exception {
-        pathStream.close();
+        StreamSupport
+                .stream(((Iterable<Path>) () -> pathIterator).spliterator(), false)
+                .close();
     }
-
 }
